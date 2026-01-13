@@ -94,7 +94,7 @@ namespace Api_GestionVentas.Controllers
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
             
-            var user = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == dto.Email && u.EsActivo ==true);
+            var user = await _context.Usuarios.IgnoreQueryFilters().FirstOrDefaultAsync(u => u.Email == dto.Email && u.EsActivo ==true);
 
             if (user == null || !_authService.VerifyPassword(dto.Password, user.ContraseniaHash)) return Unauthorized();
 

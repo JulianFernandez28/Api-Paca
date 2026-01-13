@@ -2,12 +2,20 @@
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Reflection.Emit;
-
+using Microsoft.AspNetCore.Http;
 namespace Api_GestionVentas.Data
 {
     public class AppDbContext:DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
+
+        {
+
+            _httpContextAccessor = httpContextAccessor;
+
+        }
 
         public DbSet<Usuario> Usuarios { get; set; }
 
@@ -28,10 +36,6 @@ namespace Api_GestionVentas.Data
 
         {
 
-            // Configuraciones adicionales si es necesario (ej. índices)
-
-            modelBuilder.Entity<Usuario>().HasIndex(u => u.Email).IsUnique();
-            // Relación Venta - Detalles
 
             modelBuilder.Entity<Venta>()
 

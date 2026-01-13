@@ -16,6 +16,10 @@ namespace Api_GestionVentas.Models
         public Usuario Usuario { get; set; }
 
         public decimal Total { get; set; }
+        public int EmpresaId
+        {
+            get; set;
+        }
 
         public ICollection<DetalleVenta> DetalleVenta { get; set; }
     }

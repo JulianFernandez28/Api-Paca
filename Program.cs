@@ -86,7 +86,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 // Inyección de dependencias (ej. servicios)
-
+builder.Services.AddHttpContextAccessor();  // Registra IHttpContextAccessor para acceso al HttpContext
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<ISubCategoriaService, SubCategoriaService>();

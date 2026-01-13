@@ -2,6 +2,7 @@
 using Api_GestionVentas.DTOs.Categoria;
 using Api_GestionVentas.Models;
 using Api_GestionVentas.Services.IServices;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -12,39 +13,44 @@ namespace Api_GestionVentas.Services
     {
 
         private readonly AppDbContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
 
-        public CategoriaService(AppDbContext context)
+        public CategoriaService(AppDbContext context, IHttpContextAccessor httpContextAccessor)
 
         {
 
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+
+        public async Task<IEnumerable<Categoria>> GetAllAsync(int empresaId)
+
+        {
+
+            return await _context.Categorias.Where(e => e.EmpresaId == empresaId).ToListAsync();
 
         }
 
 
-        public async Task<IEnumerable<Categoria>> GetAllAsync()
+        public async Task<Categoria> GetByIdAsync(int id, int empresaId)
 
         {
 
-            return await _context.Categorias.ToListAsync();
+            return await _context.Categorias.FirstOrDefaultAsync(c => c.Id == id && c.EmpresaId == empresaId);
 
         }
 
 
-        public async Task<Categoria> GetByIdAsync(int id)
+        public async Task<Categoria> CreateAsync(CategoriaCreateDto categoria, int empresaId)
 
         {
 
-            return await _context.Categorias.FindAsync(id);
+           
+            
 
-        }
-
-
-        public async Task<Categoria> CreateAsync(CategoriaCreateDto categoria)
-
-        {
-            Categoria existe = await _context.Categorias.FirstOrDefaultAsync(q => q.Nombre == categoria.Nombre);
+            Categoria existe = await _context.Categorias.FirstOrDefaultAsync(q => q.Nombre == categoria.Nombre && q.EmpresaId == empresaId);
             if (existe != null)
             {
 
@@ -55,6 +61,7 @@ namespace Api_GestionVentas.Services
             categoriaNueva.Nombre =  categoria.Nombre;
             categoriaNueva.Descripcion = categoria.Descripcion;
             categoriaNueva.EsActivo = true;
+            categoriaNueva.EmpresaId = empresaId;
 
             _context.Categorias.Add(categoriaNueva);
 
@@ -65,11 +72,11 @@ namespace Api_GestionVentas.Services
         }
 
 
-        public async Task<Categoria> UpdateAsync(int id, CategoriaUpdateDto categoria)
+        public async Task<Categoria> UpdateAsync(int id, CategoriaUpdateDto categoria, int empresaId)
 
         {
 
-            var existing = await _context.Categorias.FindAsync(id);
+            var existing = await _context.Categorias.FirstOrDefaultAsync(c => c.Id ==  id && c.EmpresaId == empresaId);
 
             if (existing == null) return null;
 
@@ -88,11 +95,11 @@ namespace Api_GestionVentas.Services
         }
 
 
-        public async Task<bool> DeactivateAsync(int id)
+        public async Task<bool> DeactivateAsync(int id, int empresaId)
 
         {
 
-            var categoria = await _context.Categorias.FindAsync(id);
+            var categoria = await _context.Categorias.FirstOrDefaultAsync(_ => _.Id == id && _.EmpresaId == empresaId);
 
             if (categoria == null) return false;
 

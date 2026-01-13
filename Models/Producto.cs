@@ -46,6 +46,10 @@ namespace Api_GestionVentas.Models
         public int IdSubcategoria { get; set; }
 
         public SubCategoria Subcategoria { get; set; }
+        public int EmpresaId
+        {
+            get; set;
+        }
 
 
 

@@ -34,7 +34,8 @@ namespace Api_GestionVentas.Services
 
                 new Claim(ClaimTypes.Email, user.Email),
 
-                new Claim(ClaimTypes.Role, user.Rol)
+                new Claim(ClaimTypes.Role, user.Rol),
+                new Claim("EmpresaId", user.EmpresaId.ToString())
 
             };
 

@@ -6,5 +6,9 @@
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
         public bool EsActivo { get; set; }
+        public int EmpresaId
+        {
+            get; set;
+        }
     }
 }

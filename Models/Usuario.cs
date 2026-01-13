@@ -24,6 +24,7 @@ namespace Api_GestionVentas.Models
         [Required]
 
         public string Rol { get; set; } // 'admin', 'vendedor'
+        public int EmpresaId { get; set; }
 
 
 

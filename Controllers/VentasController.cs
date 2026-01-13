@@ -76,6 +76,7 @@ namespace Api_GestionVentas.Controllers
             // Obtener idUsuario del token
 
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var empresaIdClaim = User.FindFirst("EmpresaId");
 
             if (userIdClaim == null) return Unauthorized();
 
@@ -86,6 +87,7 @@ namespace Api_GestionVentas.Controllers
 
             {
                 Venta ventaNueva = new Venta();
+                ventaNueva.EmpresaId = int.Parse(empresaIdClaim.Value);
                 ventaNueva.DetalleVenta = new List<DetalleVenta>();
 
 

@@ -10,6 +10,10 @@ namespace Api_GestionVentas.Models
         public int CategoriaId { get; set; }
 
         public bool EsActivo { get; set; }
+        public int EmpresaId
+        {
+            get; set;
+        }
         public Categoria Categoria { get; set; }
     }
 }

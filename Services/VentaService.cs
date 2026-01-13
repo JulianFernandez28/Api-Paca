@@ -47,6 +47,7 @@ namespace Api_GestionVentas.Services
                 // Asignar usuario y fecha
                 venta.UsuarioId = usuarioId;
                 venta.Fecha = DateTime.Now;
+                
                 decimal total = 0;
 
                 foreach (var detalle in venta.DetalleVenta)

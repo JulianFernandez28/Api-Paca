@@ -22,6 +22,18 @@ namespace Api_GestionVentas.Controllers
 
         }
 
+        private int GetIdEmpresa()
+
+        {
+
+            var claim = User.FindFirst("EmpresaId");
+
+            if (claim == null) throw new UnauthorizedAccessException("IdEmpresa no encontrado en token.");
+
+            return int.Parse(claim.Value);
+
+        }
+
 
         // GET: api/categorias
 
@@ -30,8 +42,8 @@ namespace Api_GestionVentas.Controllers
         public async Task<IActionResult> GetAll()
 
         {
-
-            var categorias = await _categoriaService.GetAllAsync();
+            var idEmpresa = GetIdEmpresa();
+            var categorias = await _categoriaService.GetAllAsync(idEmpresa);
 
             return Ok(categorias);
 
@@ -45,8 +57,8 @@ namespace Api_GestionVentas.Controllers
         public async Task<IActionResult> GetById(int id)
 
         {
-
-            var categoria = await _categoriaService.GetByIdAsync(id);
+            var idEmpresa = GetIdEmpresa();
+            var categoria = await _categoriaService.GetByIdAsync(id,idEmpresa);
 
             if (categoria == null) return NotFound();
 
@@ -68,7 +80,8 @@ namespace Api_GestionVentas.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
 
-            var nuevaCategoria = await _categoriaService.CreateAsync(categoria);
+            var idEmpresa = GetIdEmpresa();
+            var nuevaCategoria = await _categoriaService.CreateAsync(categoria,idEmpresa);
 
             return CreatedAtAction(nameof(GetById), new { id = nuevaCategoria.Id }, nuevaCategoria);
 
@@ -87,8 +100,8 @@ namespace Api_GestionVentas.Controllers
 
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-
-            var updated = await _categoriaService.UpdateAsync(id, categoria);
+            var idEmpresa = GetIdEmpresa();
+            var updated = await _categoriaService.UpdateAsync(id, categoria,idEmpresa);
 
             if (updated == null) return NotFound();
 
@@ -106,8 +119,8 @@ namespace Api_GestionVentas.Controllers
         public async Task<IActionResult> Deactivate(int id)
 
         {
-
-            var result = await _categoriaService.DeactivateAsync(id);
+            var idEmpresa = GetIdEmpresa();
+            var result = await _categoriaService.DeactivateAsync(id,idEmpresa);
 
             if (!result) return NotFound();
 
