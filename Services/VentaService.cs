@@ -20,25 +20,32 @@ namespace Api_GestionVentas.Services
         }
 
 
-        public async Task<IEnumerable<Venta>> GetAllAsync()
+        public async Task<IEnumerable<Venta>> GetAllAsync(int empresaId)
 
         {
 
-            return await _context.Ventas.Include(v => v.DetalleVenta).ThenInclude(d => d.Producto).ToListAsync();
+            return await _context.Ventas
+                .Where(v => v.EmpresaId == empresaId)
+                .Include(v => v.DetalleVenta)
+                .ThenInclude(d => d.Producto)
+                .ToListAsync();
 
         }
 
 
-        public async Task<Venta> GetByIdAsync(int id)
+        public async Task<Venta> GetByIdAsync(int id, int empresaId)
 
         {
 
-            return await _context.Ventas.Include(v => v.DetalleVenta).ThenInclude(d => d.Producto).FirstOrDefaultAsync(v => v.Id == id);
+            return await _context.Ventas.
+                Include(v => v.DetalleVenta)
+                .ThenInclude(d => d.Producto)
+                .FirstOrDefaultAsync(v => v.Id == id && v.EmpresaId == empresaId);
 
         }
 
 
-        public async Task<Venta> CreateAsync(Venta venta, int usuarioId)
+        public async Task<Venta> CreateAsync(Venta venta, int usuarioId, int empresaId)
 
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -47,7 +54,7 @@ namespace Api_GestionVentas.Services
                 // Asignar usuario y fecha
                 venta.UsuarioId = usuarioId;
                 venta.Fecha = DateTime.Now;
-                
+                venta.EmpresaId = empresaId;
                 decimal total = 0;
 
                 foreach (var detalle in venta.DetalleVenta)
@@ -65,7 +72,12 @@ namespace Api_GestionVentas.Services
                         throw new InvalidOperationException($"Stock insuficiente para {producto.Nombre}. Disponible: {producto.Stock}.");
                     }
                     // Calcular precio unitario y subtotal
-                    detalle.PrecioUnitario = producto.Precio;
+
+                    if (producto.Precio != 0)
+                    {
+                        detalle.PrecioUnitario = producto.Precio;
+                    }
+                    
                     total += detalle.PrecioUnitario * detalle.Cantidad;
                     // Reducir stock
                     producto.Stock -= detalle.Cantidad;

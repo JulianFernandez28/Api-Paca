@@ -28,6 +28,17 @@ namespace Api_GestionVentas.Controllers
 
         }
 
+        private int GetIdEmpresa()
+
+        {
+
+            var claim = User.FindFirst("EmpresaId");
+
+            if (claim == null) throw new UnauthorizedAccessException("IdEmpresa no encontrado en el token.");
+
+            return int.Parse(claim.Value);
+
+        }
 
         // GET: api/proveedores
 
@@ -36,8 +47,8 @@ namespace Api_GestionVentas.Controllers
         public async Task<IActionResult> GetAll()
 
         {
-
-            var proveedores = await _proveedorService.GetAllAsync();
+            int empresaId = GetIdEmpresa();
+            var proveedores = await _proveedorService.GetAllAsync(empresaId);
 
             return Ok(proveedores);
 
@@ -51,8 +62,8 @@ namespace Api_GestionVentas.Controllers
         public async Task<IActionResult> GetById(int id)
 
         {
-
-            var proveedor = await _proveedorService.GetByIdAsync(id);
+            int empresaId = GetIdEmpresa();
+            var proveedor = await _proveedorService.GetByIdAsync(id,empresaId);
 
             if (proveedor == null) return NotFound();
 
@@ -73,8 +84,8 @@ namespace Api_GestionVentas.Controllers
 
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-
-            var nuevoProveedor = await _proveedorService.CreateAsync(proveedor);
+            int empresaId = GetIdEmpresa();
+            var nuevoProveedor = await _proveedorService.CreateAsync(proveedor, empresaId);
 
             return CreatedAtAction(nameof(GetById), new { id = nuevoProveedor.Id }, nuevoProveedor);
 
@@ -93,8 +104,8 @@ namespace Api_GestionVentas.Controllers
 
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-
-            var updated = await _proveedorService.UpdateAsync(id, proveedor);
+            int empresaId = GetIdEmpresa();
+            var updated = await _proveedorService.UpdateAsync(id, proveedor,empresaId);
 
             if (updated == null) return NotFound();
 
@@ -112,8 +123,8 @@ namespace Api_GestionVentas.Controllers
         public async Task<IActionResult> Deactivate(int id)
 
         {
-
-            var result = await _proveedorService.DeactivateAsync(id);
+            int empresaId = GetIdEmpresa();
+            var result = await _proveedorService.DeactivateAsync(id, empresaId);
 
             if (!result) return NotFound();
 

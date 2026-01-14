@@ -25,6 +25,18 @@ public class ProductosController : ControllerBase
 
     }
 
+    private int GetIdEmpresa()
+
+    {
+
+        var claim = User.FindFirst("EmpresaId");
+
+        if (claim == null) throw new UnauthorizedAccessException("IdEmpresa no encontrado en el token.");
+
+        return int.Parse(claim.Value);
+
+    }
+
 
     // GET: api/productos
 
@@ -33,8 +45,8 @@ public class ProductosController : ControllerBase
     public async Task<IActionResult> GetAll()
 
     {
-
-        var productos = await _productoService.GetAllAsync();
+        int empresaId = GetIdEmpresa();
+        var productos = await _productoService.GetAllAsync(empresaId);
 
         return Ok(productos);
 
@@ -48,8 +60,8 @@ public class ProductosController : ControllerBase
     public async Task<IActionResult> GetById(int id)
 
     {
-
-        var producto = await _productoService.GetByIdAsync(id);
+        int empresaId = GetIdEmpresa();
+        var producto = await _productoService.GetByIdAsync(id, empresaId);
 
         if (producto == null) return NotFound();
 
@@ -75,7 +87,8 @@ public class ProductosController : ControllerBase
 
         {
 
-            var nuevoProducto = await _productoService.CreateAsync(producto);
+            int empresaId = GetIdEmpresa();
+            var nuevoProducto = await _productoService.CreateAsync(producto, empresaId);
 
             return CreatedAtAction(nameof(GetById), new { id = nuevoProducto.Id }, nuevoProducto);
 
@@ -108,8 +121,8 @@ public class ProductosController : ControllerBase
         try
 
         {
-
-            var updated = await _productoService.UpdateAsync(id, producto);
+            int empresaId = GetIdEmpresa();
+            var updated = await _productoService.UpdateAsync(id, producto,empresaId);
 
             if (updated == null) return NotFound();
 
@@ -137,8 +150,8 @@ public class ProductosController : ControllerBase
     public async Task<IActionResult> Deactivate(int id)
 
     {
-
-        var result = await _productoService.DeactivateAsync(id);
+        int empresaId = GetIdEmpresa();
+        var result = await _productoService.DeactivateAsync(id, empresaId);
 
         if (!result) return NotFound();
 

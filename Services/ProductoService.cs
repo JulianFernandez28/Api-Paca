@@ -22,29 +22,37 @@ namespace Api_GestionVentas.Services
         }
 
 
-        public async Task<IEnumerable<Producto>> GetAllAsync()
+        public async Task<IEnumerable<Producto>> GetAllAsync(int empresaId)
 
         {
 
-            return await _context.Productos.Include(p => p.Proveedor).Include(p => p.Subcategoria).ToListAsync();
+            return await _context.Productos
+                .Where(p => p.EmpresaId == empresaId)
+                .Include(p => p.Proveedor)
+                .Include(p => p.Subcategoria)
+                .ToListAsync();
 
         }
 
 
-        public async Task<Producto> GetByIdAsync(int id)
+        public async Task<Producto> GetByIdAsync(int id, int empresaId)
 
         {
 
-            return await _context.Productos.Include(p => p.Proveedor).Include(p => p.Subcategoria).FirstOrDefaultAsync(p => p.Id == id);
+            return await _context.Productos
+                .Include(p => p.Proveedor)
+                .Include(p => p.Subcategoria)
+                .FirstOrDefaultAsync(p => p.Id == id && p.EmpresaId == empresaId);
 
         }
 
 
-        public async Task<Producto> CreateAsync(ProductoCreateDto producto)
+        public async Task<Producto> CreateAsync(ProductoCreateDto producto, int empresaId)
 
         {
 
-            var existing = await _context.Productos.FirstOrDefaultAsync(q => q.Codigo == producto.Codigo);
+            var existing = await _context.Productos
+                .FirstOrDefaultAsync(q => q.Codigo == producto.Codigo && q.EmpresaId == empresaId);
             if (existing!=null)
 
             {
@@ -55,7 +63,8 @@ namespace Api_GestionVentas.Services
 
             // Validar que la subcategoría exista y esté activa
 
-            var subcategoria = await _context.Subcategorias.FindAsync(producto.IdSubcategoria);
+            var subcategoria = await _context.Subcategorias
+                .FirstOrDefaultAsync(p => p.Id == producto.IdSubcategoria && p.EmpresaId ==  empresaId);
 
             if (subcategoria == null || !subcategoria.EsActivo)
 
@@ -68,7 +77,8 @@ namespace Api_GestionVentas.Services
 
             // Validar que el proveedor exista y esté activo
 
-            var proveedor = await _context.Proveedores.FindAsync(producto.IdProveedor);
+            var proveedor = await _context.Proveedores
+                .FirstOrDefaultAsync(p => p.Id == producto.IdProveedor && p.EmpresaId == empresaId);
 
             if (proveedor == null || !proveedor.EsActivo)
 
@@ -87,7 +97,8 @@ namespace Api_GestionVentas.Services
             productoNuevo.Stock = producto.Stock;
             productoNuevo.IdProveedor = producto.IdProveedor;
             productoNuevo.IdSubcategoria = producto.IdSubcategoria;
-            productoNuevo.EsActivo = true; // Por defecto activa
+            productoNuevo.EsActivo = true;
+            productoNuevo.EmpresaId = empresaId;
 
             _context.Productos.Add(productoNuevo);
 
@@ -98,11 +109,12 @@ namespace Api_GestionVentas.Services
         }
 
 
-        public async Task<Producto> UpdateAsync(int id, ProductoUpdateDto producto)
+        public async Task<Producto> UpdateAsync(int id, ProductoUpdateDto producto, int empresaId)
 
         {
 
-            var existing = await _context.Productos.FindAsync(id);
+            var existing = await _context.Productos
+                .FirstOrDefaultAsync(p => p.Id == id && p.EmpresaId == empresaId);
 
             if (existing == null) return null;
 
@@ -113,7 +125,8 @@ namespace Api_GestionVentas.Services
 
             {
 
-                var subcategoria = await _context.Subcategorias.FindAsync(producto.IdSubcategoria);
+                var subcategoria = await _context.Subcategorias
+                    .FirstOrDefaultAsync(p => p.Id == producto.IdSubcategoria && p.EmpresaId == empresaId);
 
                 if (subcategoria == null || !subcategoria.EsActivo)
 
@@ -132,7 +145,8 @@ namespace Api_GestionVentas.Services
 
             {
 
-                var proveedor = await _context.Proveedores.FindAsync(producto.IdProveedor);
+                var proveedor = await _context.Proveedores
+                    .FirstOrDefaultAsync(p => p.Id == producto.IdProveedor && p.EmpresaId == empresaId);
 
                 if (proveedor == null || !proveedor.EsActivo)
 
@@ -159,6 +173,7 @@ namespace Api_GestionVentas.Services
 
             existing.EsActivo = producto.EsActivo;
 
+            existing.EmpresaId = empresaId;
 
             await _context.SaveChangesAsync();
 
@@ -167,11 +182,12 @@ namespace Api_GestionVentas.Services
         }
 
 
-        public async Task<bool> DeactivateAsync(int id)
+        public async Task<bool> DeactivateAsync(int id, int empresaId)
 
         {
 
-            var producto = await _context.Productos.FindAsync(id);
+            var producto = await _context.Productos
+                .FirstOrDefaultAsync(p => p.Id == id && p.EmpresaId == empresaId);
 
             if (producto == null) return false;
 

@@ -2,6 +2,7 @@
 using Api_GestionVentas.DTOs.Proveedor;
 using Api_GestionVentas.Models;
 using Api_GestionVentas.Services.IServices;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api_GestionVentas.Services
@@ -22,33 +23,45 @@ namespace Api_GestionVentas.Services
         }
 
 
-        public async Task<IEnumerable<Proveedor>> GetAllAsync()
+        public async Task<IEnumerable<Proveedor>> GetAllAsync(int empresaId)
 
         {
 
-            return await _context.Proveedores.ToListAsync();
+            return await _context.Proveedores
+                .Where(p => p.EmpresaId ==empresaId)
+                .ToListAsync();
 
         }
 
 
-        public async Task<Proveedor> GetByIdAsync(int id)
+        public async Task<Proveedor> GetByIdAsync(int id, int empresaId)
 
         {
 
-            return await _context.Proveedores.FindAsync(id);
+            return await _context.Proveedores
+                .FirstOrDefaultAsync(p => p.Id == id && p.EmpresaId == empresaId);
 
         }
 
 
-        public async Task<Proveedor> CreateAsync(ProveedorCreateDto proveedor)
+        public async Task<Proveedor> CreateAsync(ProveedorCreateDto proveedor, int empresaId)
 
         {
+            Proveedor existing = await _context.Proveedores
+                .FirstOrDefaultAsync( p => p.Nombre == proveedor.Nombre && p.EmpresaId == empresaId);
+
+            if(existing != null)
+            {
+                throw new InvalidOperationException("El proveedor se encuentra registrado");
+            }
+
 
             Proveedor proveedorNuevo = new Proveedor();
             proveedorNuevo.Nombre = proveedor.Nombre;
             proveedorNuevo.Direccion =  proveedor.Direccion;
             proveedorNuevo.Contacto = proveedor.Contacto;
             proveedorNuevo.EsActivo = true;
+            proveedorNuevo.EmpresaId = empresaId;
             
 
             _context.Proveedores.Add(proveedorNuevo);
@@ -60,11 +73,11 @@ namespace Api_GestionVentas.Services
         }
 
 
-        public async Task<Proveedor> UpdateAsync(int id, ProveedorUpdateDto proveedor)
+        public async Task<Proveedor> UpdateAsync(int id, ProveedorUpdateDto proveedor,int empresaId)
 
         {
 
-            var existing = await _context.Proveedores.FindAsync(id);
+            var existing = await _context.Proveedores.FirstOrDefaultAsync( p => p.Id == id && p.EmpresaId ==  empresaId);
 
             if (existing == null) return null;
 
@@ -77,6 +90,8 @@ namespace Api_GestionVentas.Services
 
             existing.EsActivo = proveedor.EsActivo;
 
+            existing.EmpresaId = empresaId;
+
 
             await _context.SaveChangesAsync();
 
@@ -85,11 +100,11 @@ namespace Api_GestionVentas.Services
         }
 
 
-        public async Task<bool> DeactivateAsync(int id)
+        public async Task<bool> DeactivateAsync(int id,int empresaId)
 
         {
 
-            var proveedor = await _context.Proveedores.FindAsync(id);
+            var proveedor = await _context.Proveedores.FirstOrDefaultAsync( p => p.Id == id && p.EmpresaId == empresaId);
 
             if (proveedor == null) return false;
 

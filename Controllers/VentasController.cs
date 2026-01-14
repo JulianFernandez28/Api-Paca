@@ -28,7 +28,17 @@ namespace Api_GestionVentas.Controllers
             _ventaService = ventaService;
 
         }
+        private int GetIdEmpresa()
 
+        {
+
+            var claim = User.FindFirst("EmpresaId");
+
+            if (claim == null) throw new UnauthorizedAccessException("IdEmpresa no encontrado en el token.");
+
+            return int.Parse(claim.Value);
+
+        }
 
         // GET: api/ventas
 
@@ -37,8 +47,8 @@ namespace Api_GestionVentas.Controllers
         public async Task<IActionResult> GetAll()
 
         {
-
-            var ventas = await _ventaService.GetAllAsync();
+            int empresaId = GetIdEmpresa();
+            var ventas = await _ventaService.GetAllAsync(empresaId);
 
             return Ok(ventas);
 
@@ -52,8 +62,8 @@ namespace Api_GestionVentas.Controllers
         public async Task<IActionResult> GetById(int id)
 
         {
-
-            var venta = await _ventaService.GetByIdAsync(id);
+            int empresaId = GetIdEmpresa();
+            var venta = await _ventaService.GetByIdAsync(id,empresaId);
 
             if (venta == null) return NotFound();
 
@@ -76,7 +86,7 @@ namespace Api_GestionVentas.Controllers
             // Obtener idUsuario del token
 
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            var empresaIdClaim = User.FindFirst("EmpresaId");
+           
 
             if (userIdClaim == null) return Unauthorized();
 
@@ -87,7 +97,7 @@ namespace Api_GestionVentas.Controllers
 
             {
                 Venta ventaNueva = new Venta();
-                ventaNueva.EmpresaId = int.Parse(empresaIdClaim.Value);
+           
                 ventaNueva.DetalleVenta = new List<DetalleVenta>();
 
 
@@ -100,8 +110,8 @@ namespace Api_GestionVentas.Controllers
 
                     ventaNueva.DetalleVenta.Add(detalle);
                 }
-
-                var nuevaVenta = await _ventaService.CreateAsync(ventaNueva, idUsuario);
+                int empresaId = GetIdEmpresa();
+                var nuevaVenta = await _ventaService.CreateAsync(ventaNueva, idUsuario,empresaId);
 
                 return CreatedAtAction(nameof(GetById), new { id = nuevaVenta.Id }, nuevaVenta);
 

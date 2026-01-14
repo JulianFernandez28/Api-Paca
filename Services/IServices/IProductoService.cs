@@ -5,14 +5,14 @@ namespace Api_GestionVentas.Services.IServices
 {
     public interface IProductoService
     {
-        Task<IEnumerable<Producto>> GetAllAsync();
+        Task<IEnumerable<Producto>> GetAllAsync(int empresaId);
 
-        Task<Producto> GetByIdAsync(int id);
+        Task<Producto> GetByIdAsync(int id, int empresaId);
 
-        Task<Producto> CreateAsync(ProductoCreateDto producto);
+        Task<Producto> CreateAsync(ProductoCreateDto producto, int empresaId);
 
-        Task<Producto> UpdateAsync(int id, ProductoUpdateDto producto);
+        Task<Producto> UpdateAsync(int id, ProductoUpdateDto producto, int empresaId);
 
-        Task<bool> DeactivateAsync(int id);
+        Task<bool> DeactivateAsync(int id, int empresaId);
     }
 }

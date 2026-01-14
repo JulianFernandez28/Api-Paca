@@ -7,15 +7,15 @@ namespace Api_GestionVentas.Services.IServices
 
     {
 
-        Task<IEnumerable<Proveedor>> GetAllAsync();
+        Task<IEnumerable<Proveedor>> GetAllAsync(int empresaId);
 
-        Task<Proveedor> GetByIdAsync(int id);
+        Task<Proveedor> GetByIdAsync(int id, int empresaId);
 
-        Task<Proveedor> CreateAsync(ProveedorCreateDto proveedor);
+        Task<Proveedor> CreateAsync(ProveedorCreateDto proveedor, int empresaId);
 
-        Task<Proveedor> UpdateAsync(int id, ProveedorUpdateDto proveedor);
+        Task<Proveedor> UpdateAsync(int id, ProveedorUpdateDto proveedor, int empresaId);
 
-        Task<bool> DeactivateAsync(int id);
+        Task<bool> DeactivateAsync(int id, int empresaId);
 
     }
 }
